@@ -329,8 +329,46 @@ class ExtractionSitemap
 
     // ─── Réseau ─────────────────────────────────
 
+    /**
+     * Vérifier qu'une URL est publique (anti-SSRF).
+     *
+     * Rejette les schémas non HTTP(S) et les hôtes résolvant vers des IP
+     * privées ou réservées (127.0.0.0/8, 10/8, 172.16/12, 192.168/16, 169.254/16, ::1…).
+     */
+    public static function estUrlPublique(string $url): bool
+    {
+        $parties = parse_url($url);
+        $scheme = strtolower($parties['scheme'] ?? '');
+        $hote = $parties['host'] ?? '';
+
+        if (!in_array($scheme, ['http', 'https'], true) || $hote === '') {
+            return false;
+        }
+
+        // Résoudre le nom d'hôte en IP
+        $ip = gethostbyname($hote);
+
+        // gethostbyname renvoie le hostname tel quel en cas d'échec
+        if ($ip === $hote && !filter_var($hote, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+
+        // Rejeter les IP privées et réservées (IPv4)
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private function telechargerUrl(string $url): ?string
     {
+        if (!self::estUrlPublique($url)) {
+            $this->erreurs[] = "URL bloquée (adresse privée/réservée) : $url";
+            $this->log("URL bloquée (SSRF) : $url");
+            return null;
+        }
+
         $codeHttp = 0;
 
         for ($tentative = 1; $tentative <= $this->tentatives; $tentative++) {

@@ -27,6 +27,14 @@ if (!filter_var($url, FILTER_VALIDATE_URL)) {
     exit;
 }
 
+// Anti-SSRF : rejeter les URLs vers des hôtes privés/réservés
+require_once __DIR__ . '/src/ExtractionSitemap.php';
+if (!ExtractionSitemap::estUrlPublique($url)) {
+    http_response_code(400);
+    echo json_encode(['erreur' => 'URL non autorisée (adresse privée ou réservée)']);
+    exit;
+}
+
 // Valider le filtre regex
 $filtre = trim($_POST['filtre'] ?? '');
 if ($filtre !== '') {
