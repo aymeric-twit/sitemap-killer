@@ -437,6 +437,28 @@ body {
     border-radius: 4px;
 }
 
+/* ─── Panneau d'aide ─────────────────────── */
+
+.config-help-panel {
+    background: var(--brand-linen);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--brand-gold);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.config-help-panel .help-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--brand-dark);
+}
+
+.config-help-panel ul { padding-left: 1.1rem; margin-bottom: 0; }
+.config-help-panel li { margin-bottom: 0.25rem; }
+
 .diagnostic-badge {
     cursor: help;
     border-bottom: 1px dotted currentColor;

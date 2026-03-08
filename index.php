@@ -25,13 +25,15 @@
 
 <div class="container pb-5">
 
-    <!-- ─── Formulaire ───────────────────────── -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-gear"></i> Configuration</h6>
-        </div>
-        <div class="card-body">
-            <form id="formExtraction">
+    <!-- ─── Formulaire + Aide ────────────────── -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-gear"></i> Configuration</h6>
+                </div>
+                <div class="card-body">
+                    <form id="formExtraction">
                 <!-- URL -->
                 <div class="mb-3">
                     <label for="url" class="form-label">URL du sitemap</label>
@@ -131,7 +133,34 @@
                         <i class="bi bi-stop-fill"></i> Arrêter
                     </button>
                 </div>
-            </form>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau d'aide -->
+        <div class="col-lg-4">
+            <div class="config-help-panel">
+                <div class="help-title mb-2">
+                    <i class="bi bi-info-circle me-1"></i> Comment ça marche
+                </div>
+                <ul>
+                    <li><strong>URL du sitemap</strong> : collez l'URL directe d'un fichier <code>sitemap.xml</code> ou d'un sitemap index.</li>
+                    <li><strong>Robots.txt</strong> : cochez cette option pour détecter automatiquement les sitemaps déclarés dans le <code>robots.txt</code> du site.</li>
+                    <li><strong>Hreflang</strong> : extrait les balises <code>xhtml:link</code> hreflang et audite la réciprocité entre les versions linguistiques.</li>
+                    <li><strong>Filtre URL</strong> : regex pour ne garder que certaines URLs (ex : <code>/blog/</code>).</li>
+                    <li><strong>Export CSV</strong> : téléchargez le fichier complet ou filtré par sitemap source.</li>
+                </ul>
+                <hr>
+                <div class="help-title mb-2">
+                    <i class="bi bi-lightbulb me-1"></i> Audit automatique
+                </div>
+                <ul class="mb-0">
+                    <li>Détection des URLs en double entre sitemaps</li>
+                    <li>URLs sans hreflang (si extraction hreflang activée)</li>
+                    <li>Hreflang sans réciprocité avec diagnostic détaillé</li>
+                </ul>
+            </div>
         </div>
     </div>
 
