@@ -2,6 +2,70 @@
    Sitemap Killer — Frontend
    ════════════════════════════════════════════ */
 
+// ─── i18n ──────────────────────────────────
+
+var langueActuelle = (function () {
+    if (typeof window.PLATFORM_LANG === 'string' && window.PLATFORM_LANG) return window.PLATFORM_LANG;
+    try { var p = new URLSearchParams(window.location.search).get('lg'); if (p) return p; } catch (_) {}
+    try { var s = localStorage.getItem('lang'); if (s) return s; } catch (_) {}
+    return 'fr';
+})();
+
+function t(cle, params) {
+    var trad = (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[langueActuelle] && TRANSLATIONS[langueActuelle][cle])
+        ? TRANSLATIONS[langueActuelle][cle]
+        : (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.fr && TRANSLATIONS.fr[cle])
+            ? TRANSLATIONS.fr[cle]
+            : cle;
+    if (params) {
+        Object.keys(params).forEach(function (k) {
+            trad = trad.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+        });
+    }
+    return trad;
+}
+
+function traduirePage() {
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        el.innerHTML = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+        el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+    });
+    // Traduire les options du select lignesParPage
+    traduireLignesParPage();
+}
+
+function traduireLignesParPage() {
+    var sel = document.getElementById('lignesParPage');
+    if (!sel) return;
+    var options = sel.querySelectorAll('option');
+    options.forEach(function (opt) {
+        opt.textContent = t('resultats.lignes', { n: opt.value });
+    });
+}
+
+function changerLangue(lng) {
+    langueActuelle = lng;
+    try { localStorage.setItem('lang', lng); } catch (_) {}
+    traduirePage();
+}
+
+function initLangueSelect() {
+    var select = document.getElementById('lang-select');
+    if (!select) return;
+    select.value = langueActuelle;
+    select.addEventListener('change', function () {
+        changerLangue(this.value);
+    });
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('platformLangChange', function (e) {
+        if (e.detail && e.detail.lang) changerLangue(e.detail.lang);
+    });
+}
+
 // ─── Configuration ──────────────────────────
 
 var baseUrl = window.MODULE_BASE_URL || '.';
@@ -52,6 +116,9 @@ var elBtnExportFiltre = document.getElementById('btnExportFiltre');
 // ─── Initialisation ─────────────────────────
 
 document.addEventListener('DOMContentLoaded', function () {
+    traduirePage();
+    initLangueSelect();
+
     elBtnExtraire.addEventListener('click', lancerExtraction);
     elBtnArreter.addEventListener('click', arreterExtraction);
 
@@ -107,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function lancerExtraction() {
     var url = document.getElementById('url').value.trim();
     if (!url) {
-        afficherStatus('Veuillez saisir une URL.', 'error');
+        afficherStatus(t('status.saisir_url'), 'error');
         return;
     }
 
@@ -130,6 +197,8 @@ function lancerExtraction() {
     enCours = true;
     elBtnExtraire.disabled = true;
     elBtnArreter.classList.remove('d-none');
+    var helpPanel = document.getElementById('helpPanel');
+    if (helpPanel) helpPanel.style.display = 'none';
     elSectionJournal.classList.remove('d-none');
     elCorpsJournal.style.display = '';
     elBtnToggleJournal.querySelector('i').className = 'bi bi-chevron-down';
@@ -141,7 +210,7 @@ function lancerExtraction() {
     elSectionAudit.classList.add('d-none');
     elCorpsAudit.innerHTML = '';
     reinitialiserKpi();
-    afficherStatus('Préparation de l\'extraction...', 'loading');
+    afficherStatus(t('status.preparation'), 'loading');
 
     // Construire le FormData
     var formData = new FormData();
@@ -164,18 +233,18 @@ function lancerExtraction() {
     })
         .then(function (res) {
             if (res.status === 429) {
-                throw new Error('Quota mensuel épuisé.');
+                throw new Error(t('status.quota_epuise'));
             }
             if (!res.ok) {
                 return res.json().then(function (data) {
-                    throw new Error(data.erreur || 'Erreur HTTP ' + res.status);
+                    throw new Error(data.erreur || t('error.http', { code: res.status }));
                 });
             }
             return res.json();
         })
         .then(function (data) {
             jobId = data.jobId;
-            afficherStatus('Extraction en cours...', 'loading');
+            afficherStatus(t('status.en_cours'), 'loading');
             demarrerStream(jobId);
         })
         .catch(function (err) {
@@ -215,7 +284,7 @@ function demarrerStream(id) {
 
         finirExtraction();
         afficherStatus(
-            resultats.length + ' URLs extraites en ' + data.statistiques.duree + 's',
+            t('status.succes', { count: resultats.length, duree: data.statistiques.duree }),
             'success'
         );
 
@@ -233,7 +302,7 @@ function demarrerStream(id) {
         // Vérifier s'il y avait un événement d'erreur custom
         if (e.data) {
             var data = JSON.parse(e.data);
-            afficherStatus(data.message || 'Erreur serveur', 'error');
+            afficherStatus(data.message || t('error.serveur'), 'error');
         }
 
         if (evtSource) {
@@ -245,7 +314,7 @@ function demarrerStream(id) {
         if (enCours) {
             finirExtraction();
             if (!e.data) {
-                afficherStatus('Connexion interrompue.', 'error');
+                afficherStatus(t('status.connexion_interrompue'), 'error');
             }
         }
     });
@@ -257,7 +326,7 @@ function arreterExtraction() {
         evtSource = null;
     }
     finirExtraction();
-    afficherStatus('Extraction arrêtée.', 'warning');
+    afficherStatus(t('status.arretee'), 'warning');
 
     // Afficher ce qu'on a déjà
     if (resultats.length > 0) {
@@ -362,21 +431,21 @@ function construireEnteteTable() {
 
     // Construire les colonnes dynamiquement
     var colonnes = [
-        { cle: 'loc', label: 'URL', triable: true },
-        { cle: 'lastmod', label: 'Lastmod', triable: true },
+        { cle: 'loc', label: t('table.url'), triable: true },
+        { cle: 'lastmod', label: t('table.lastmod'), triable: true },
     ];
 
     if (aChangefreq) {
-        colonnes.push({ cle: 'changefreq', label: 'Changefreq', triable: true });
+        colonnes.push({ cle: 'changefreq', label: t('table.changefreq'), triable: true });
     }
     if (aPriority) {
-        colonnes.push({ cle: 'priority', label: 'Priority', triable: true });
+        colonnes.push({ cle: 'priority', label: t('table.priority'), triable: true });
     }
 
-    colonnes.push({ cle: 'sitemapSource', label: 'Sitemap source', triable: true });
+    colonnes.push({ cle: 'sitemapSource', label: t('table.sitemap_source'), triable: true });
 
     if (hreflangActif) {
-        colonnes.push({ cle: 'hreflangs', label: 'Hreflang', triable: false });
+        colonnes.push({ cle: 'hreflangs', label: t('table.hreflang'), triable: false });
     }
 
     var html = '';
@@ -393,7 +462,7 @@ function construireEnteteTable() {
 }
 
 function peuplerFiltreSitemap() {
-    var html = '<option value="">Tous les sitemaps (' + sourcesSitemap.length + ')</option>';
+    var html = '<option value="">' + t('resultats.tous_sitemaps') + ' (' + sourcesSitemap.length + ')</option>';
     for (var i = 0; i < sourcesSitemap.length; i++) {
         html += '<option value="' + echapper(sourcesSitemap[i]) + '">' + echapper(tronquer(sourcesSitemap[i], 60)) + '</option>';
     }
@@ -454,11 +523,15 @@ function renderPage() {
         html += '</tr>';
     }
 
-    elCorpsTable.innerHTML = html || '<tr><td colspan="' + nbColonnes + '" class="text-center text-muted py-3">Aucun résultat</td></tr>';
+    elCorpsTable.innerHTML = html || '<tr><td colspan="' + nbColonnes + '" class="text-center text-muted py-3">' + t('resultats.aucun') + '</td></tr>';
 
     // Pagination info
     if (resultatsFiltres.length > 0) {
-        elInfoPagination.textContent = (debut + 1) + '–' + fin + ' sur ' + formaterNombre(resultatsFiltres.length);
+        elInfoPagination.textContent = t('resultats.pagination', {
+            debut: debut + 1,
+            fin: fin,
+            total: formaterNombre(resultatsFiltres.length)
+        });
     } else {
         elInfoPagination.textContent = '';
     }
@@ -602,23 +675,23 @@ function exporterCsvFiltre() {
 
     // Construire les colonnes dynamiquement
     var colonnes = ['loc', 'lastmod'];
-    var entetes = ['URL', 'Lastmod'];
+    var entetes = [t('table.url'), t('table.lastmod')];
 
     if (aChangefreq) {
         colonnes.push('changefreq');
-        entetes.push('Changefreq');
+        entetes.push(t('table.changefreq'));
     }
     if (aPriority) {
         colonnes.push('priority');
-        entetes.push('Priority');
+        entetes.push(t('table.priority'));
     }
 
     colonnes.push('sitemapSource');
-    entetes.push('Sitemap source');
+    entetes.push(t('table.sitemap_source'));
 
     if (hreflangActif) {
         colonnes.push('hreflangs');
-        entetes.push('Hreflang');
+        entetes.push(t('table.hreflang'));
     }
 
     // BOM UTF-8
@@ -755,7 +828,7 @@ function detecterSansReciprocite() {
                         source: loc,
                         cible: cible,
                         lang: lang,
-                        raison: 'URL cible absente du sitemap',
+                        raison: 'cible_absente',
                         cibleHreflangs: null,
                     });
                 }
@@ -780,7 +853,7 @@ function detecterSansReciprocite() {
                         source: loc,
                         cible: cible,
                         lang: lang,
-                        raison: 'Pas de lien retour',
+                        raison: 'pas_de_retour',
                         cibleHreflangs: cibleHreflangs,
                     });
                 }
@@ -811,7 +884,7 @@ function genererRapportAudit() {
         html += renderAuditSection(
             'doublons' + compteurSection,
             'bi-files',
-            'URLs en double',
+            t('audit.doublons'),
             doublons.length,
             'attention',
             renderTableauDoublons(doublons)
@@ -824,7 +897,7 @@ function genererRapportAudit() {
         html += renderAuditSection(
             'sansHreflang' + compteurSection,
             'bi-translate',
-            'URLs sans hreflang',
+            t('audit.sans_hreflang'),
             sansHreflang.length,
             'attention',
             renderTableauSansHreflang(sansHreflang)
@@ -837,7 +910,7 @@ function genererRapportAudit() {
         html += renderAuditSection(
             'sansRecip' + compteurSection,
             'bi-arrow-left-right',
-            'Hreflang sans réciprocité',
+            t('audit.sans_reciprocite'),
             sansReciprocite.length,
             'erreur',
             renderTableauSansReciprocite(sansReciprocite)
@@ -877,7 +950,7 @@ function renderAuditSection(id, icone, titre, count, severite, contenu) {
 function renderTableauDoublons(doublons) {
     var limite = Math.min(doublons.length, 100);
     var html = '<table class="table table-sm mb-0">';
-    html += '<thead><tr><th>URL</th><th>Occurrences</th><th>Sitemaps sources</th></tr></thead><tbody>';
+    html += '<thead><tr><th>' + t('audit.table_url') + '</th><th>' + t('audit.table_occurrences') + '</th><th>' + t('audit.table_sources') + '</th></tr></thead><tbody>';
 
     for (var i = 0; i < limite; i++) {
         var d = doublons[i];
@@ -891,7 +964,7 @@ function renderTableauDoublons(doublons) {
     html += '</tbody></table>';
 
     if (doublons.length > 100) {
-        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">…et ' + (doublons.length - 100) + ' de plus</p>';
+        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">' + t('audit.et_plus', { count: doublons.length - 100 }) + '</p>';
     }
 
     return html;
@@ -900,7 +973,7 @@ function renderTableauDoublons(doublons) {
 function renderTableauSansHreflang(urls) {
     var limite = Math.min(urls.length, 100);
     var html = '<table class="table table-sm mb-0">';
-    html += '<thead><tr><th>URL</th><th>Sitemap source</th></tr></thead><tbody>';
+    html += '<thead><tr><th>' + t('audit.table_url') + '</th><th>' + t('audit.table_sitemap_source') + '</th></tr></thead><tbody>';
 
     for (var i = 0; i < limite; i++) {
         var r = urls[i];
@@ -913,7 +986,7 @@ function renderTableauSansHreflang(urls) {
     html += '</tbody></table>';
 
     if (urls.length > 100) {
-        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">…et ' + (urls.length - 100) + ' de plus</p>';
+        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">' + t('audit.et_plus', { count: urls.length - 100 }) + '</p>';
     }
 
     return html;
@@ -922,13 +995,13 @@ function renderTableauSansHreflang(urls) {
 function renderTableauSansReciprocite(problemes) {
     var limite = Math.min(problemes.length, 100);
     var html = '<table class="table table-sm mb-0">';
-    html += '<thead><tr><th>URL source</th><th>Langue</th><th>URL cible</th><th>Diagnostic</th></tr></thead><tbody>';
+    html += '<thead><tr><th>' + t('audit.table_url_source') + '</th><th>' + t('audit.table_langue') + '</th><th>' + t('audit.table_url_cible') + '</th><th>' + t('audit.table_diagnostic') + '</th></tr></thead><tbody>';
 
     for (var i = 0; i < limite; i++) {
         var p = problemes[i];
-        var estAbsente = p.raison === 'URL cible absente du sitemap';
+        var estAbsente = p.raison === 'cible_absente';
         var badgeClasse = estAbsente ? 'badge-attention' : 'badge-erreur';
-        var badgeTexte = estAbsente ? 'Cible absente' : 'Pas de retour';
+        var badgeTexte = estAbsente ? t('audit.cible_absente') : t('audit.pas_de_retour');
         var tooltipHtml = construireTooltipReciprocite(p);
 
         html += '<tr>';
@@ -942,7 +1015,7 @@ function renderTableauSansReciprocite(problemes) {
     html += '</tbody></table>';
 
     if (problemes.length > 100) {
-        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">…et ' + (problemes.length - 100) + ' de plus</p>';
+        html += '<p class="text-muted mt-2 mb-0" style="font-size:0.8rem;">' + t('audit.et_plus', { count: problemes.length - 100 }) + '</p>';
     }
 
     return html;
@@ -950,23 +1023,23 @@ function renderTableauSansReciprocite(problemes) {
 
 function construireTooltipReciprocite(p) {
     var lignes = [];
-    lignes.push('A d\u00e9clare hreflang=&quot;' + echapper(p.lang) + '&quot; \u2192 B');
+    lignes.push(t('tooltip.declare_hreflang', { lang: echapper(p.lang) }));
 
     if (!p.cibleHreflangs) {
-        lignes.push('\u2717 B n\u2019appara\u00eet dans aucun sitemap');
-        lignes.push('\u2192 V\u00e9rifier que B existe et est dans un sitemap');
+        lignes.push(t('tooltip.b_absente'));
+        lignes.push(t('tooltip.verifier_b'));
     } else {
-        lignes.push('\u2717 B ne pointe vers A dans aucune langue');
-        lignes.push('B d\u00e9clare :');
+        lignes.push(t('tooltip.b_ne_pointe_pas'));
+        lignes.push(t('tooltip.b_declare'));
         var langues = Object.keys(p.cibleHreflangs);
         var max = Math.min(langues.length, 10);
         for (var i = 0; i < max; i++) {
             lignes.push(' \u2022 ' + echapper(langues[i]) + ' \u2192 ' + echapper(tronquer(p.cibleHreflangs[langues[i]], 40)));
         }
         if (langues.length > 10) {
-            lignes.push(' \u2026 et ' + (langues.length - 10) + ' autres');
+            lignes.push(t('tooltip.et_autres', { count: langues.length - 10 }));
         }
-        lignes.push('\u2192 Ajouter un hreflang vers A dans B');
+        lignes.push(t('tooltip.ajouter_hreflang'));
     }
 
     return lignes.join('&lt;br&gt;');

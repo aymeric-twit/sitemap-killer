@@ -11,7 +11,7 @@
     "display_mode": "embedded",
     "env_keys": [],
     "domain_field": "url",
-    "languages": [],
+    "languages": ["fr", "en"],
     "routes": [
         {"path": "process.php", "method": "POST", "type": "ajax"},
         {"path": "stream.php", "method": "GET", "type": "stream"},
