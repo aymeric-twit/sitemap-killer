@@ -1068,3 +1068,15 @@ function tronquer(str, max) {
     if (!str || str.length <= max) return str;
     return str.substring(0, max) + '…';
 }
+
+// --- Help panel collapse ---
+(function () {
+    var panel = document.querySelector('.config-help-panel');
+    var btn = panel ? panel.querySelector('.help-toggle-btn') : null;
+    if (panel && btn) {
+        btn.addEventListener('click', function () {
+            panel.classList.toggle('expanded');
+            btn.textContent = panel.classList.contains('expanded') ? '▲ Réduire' : '▼ Voir plus';
+        });
+    }
+})();

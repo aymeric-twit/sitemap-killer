@@ -170,6 +170,7 @@
                     <li data-i18n="help.item_sans_hreflang">URLs sans hreflang (si extraction hreflang activée)</li>
                     <li data-i18n="help.item_reciprocite">Hreflang sans réciprocité avec diagnostic détaillé</li>
                 </ul>
+                <span class="help-toggle-btn">▼ Voir plus</span>
             </div>
         </div>
     </div>
