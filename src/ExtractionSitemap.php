@@ -369,6 +369,22 @@ class ExtractionSitemap
             return null;
         }
 
+        // Mode plateforme : client HTTP centralise
+        if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\WebClient')) {
+            $this->compteurRequetes++;
+            $webClient = new \Platform\Http\WebClient('sitemap-killer');
+            $reponse = $webClient->fetchFichier($url);
+
+            if ($reponse->estSucces()) {
+                return $reponse->body;
+            }
+
+            $this->erreurs[] = "Échec téléchargement : $url (HTTP {$reponse->statusCode})";
+            $this->log("Échec : $url (HTTP {$reponse->statusCode})");
+            return null;
+        }
+
+        // Mode standalone : stream_context natif avec retry
         $codeHttp = 0;
 
         for ($tentative = 1; $tentative <= $this->tentatives; $tentative++) {
