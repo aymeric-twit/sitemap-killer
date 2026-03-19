@@ -15,8 +15,6 @@
         "fr",
         "en"
     ],
-    "api_credits_period": "mensuel",
-    "api_credits_default": 0,
     "routes": [
         {
             "path": "process.php",
@@ -36,5 +34,6 @@
     ],
     "credits_par_analyse": 1,
     "units_per_credit": 1,
-    "unit_label": "sitemaps"
+    "unit_label": "sitemaps",
+    "periode_quota": "mois"
 }
