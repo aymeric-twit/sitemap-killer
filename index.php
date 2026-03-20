@@ -15,7 +15,7 @@
 
 <!-- Navbar (supprimée en mode embedded) -->
 <nav class="navbar mb-4">
-    <div class="container d-flex justify-content-between align-items-center">
+    <div class="container-fluid px-lg-4 d-flex justify-content-between align-items-center">
         <span class="navbar-brand mb-0 h1">
             <i class="bi bi-diagram-3"></i> <span data-i18n="nav.titre">Sitemap Killer</span>
             <span class="d-block d-sm-inline ms-sm-2" data-i18n="nav.soustitre">Extraction de sitemaps XML</span>
@@ -29,7 +29,7 @@
     </div>
 </nav>
 
-<div class="container pb-5">
+<div class="container-fluid px-lg-4 py-4">
 
     <!-- ─── Formulaire + Aide ────────────────── -->
     <div class="row g-4 mb-4">

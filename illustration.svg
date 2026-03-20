@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f8fafc" rx="8"/>
+  <!-- Root node -->
+  <circle cx="100" cy="25" r="12" fill="#004c4c"/>
+  <circle cx="100" cy="25" r="6" fill="#fbb03b"/>
+  <!-- Branches from root -->
+  <line x1="100" y1="37" x2="55" y2="60" stroke="#66b2b2" stroke-width="2"/>
+  <line x1="100" y1="37" x2="100" y2="60" stroke="#66b2b2" stroke-width="2"/>
+  <line x1="100" y1="37" x2="145" y2="60" stroke="#66b2b2" stroke-width="2"/>
+  <!-- Level 2 nodes -->
+  <circle cx="55" cy="65" r="9" fill="#004c4c" opacity="0.85"/>
+  <circle cx="100" cy="65" r="9" fill="#004c4c" opacity="0.85"/>
+  <circle cx="145" cy="65" r="9" fill="#004c4c" opacity="0.85"/>
+  <!-- Branches from level 2 -->
+  <line x1="55" y1="74" x2="30" y2="95" stroke="#66b2b2" stroke-width="1.5" opacity="0.7"/>
+  <line x1="55" y1="74" x2="55" y2="95" stroke="#66b2b2" stroke-width="1.5" opacity="0.7"/>
+  <line x1="55" y1="74" x2="78" y2="95" stroke="#66b2b2" stroke-width="1.5" opacity="0.7"/>
+  <line x1="145" y1="74" x2="130" y2="95" stroke="#66b2b2" stroke-width="1.5" opacity="0.7"/>
+  <line x1="145" y1="74" x2="160" y2="95" stroke="#66b2b2" stroke-width="1.5" opacity="0.7"/>
+  <!-- Level 3 nodes -->
+  <circle cx="30" cy="100" r="6" fill="#66b2b2"/>
+  <circle cx="55" cy="100" r="6" fill="#66b2b2"/>
+  <circle cx="78" cy="100" r="6" fill="#fbb03b"/>
+  <circle cx="130" cy="100" r="6" fill="#66b2b2"/>
+  <circle cx="160" cy="100" r="6" fill="#fbb03b"/>
+  <!-- XML tag accent -->
+  <path d="M15,115 L25,108 L25,122 Z" fill="#004c4c" opacity="0.4"/>
+  <path d="M185,115 L175,108 L175,122 Z" fill="#004c4c" opacity="0.4"/>
+  <!-- Expanding indicator -->
+  <circle cx="100" cy="100" r="6" fill="#e8f4f4" stroke="#66b2b2" stroke-width="1.5"/>
+  <line x1="97" y1="100" x2="103" y2="100" stroke="#66b2b2" stroke-width="1.5"/>
+  <line x1="100" y1="97" x2="100" y2="103" stroke="#66b2b2" stroke-width="1.5"/>
+</svg>

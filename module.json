@@ -4,6 +4,7 @@
     "description": "Extraction récursive de sitemaps XML avec export CSV et analyse hreflang",
     "version": "1.0.0",
     "icon": "bi-diagram-3",
+    "illustration": "illustration.svg",
     "entry_point": "index.php",
     "sort_order": 45,
     "quota_mode": "form_submit",
