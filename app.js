@@ -199,7 +199,7 @@ function lancerExtraction() {
     elBtnExtraire.disabled = true;
     elBtnArreter.classList.remove('d-none');
     var helpPanel = document.getElementById('helpPanel');
-    if (helpPanel) { var _hp = helpPanel.querySelector('.config-help-panel'); if (_hp) _hp.classList.add('help-hidden'); };
+    // helpPanel reste visible
     elSectionJournal.classList.remove('d-none');
     elCorpsJournal.style.display = '';
     elBtnToggleJournal.querySelector('i').className = 'bi bi-chevron-down';
@@ -1078,5 +1078,5 @@ function tronquer(str, max) {
 // --- Help panel collapse ---
 function collapserHelpPanel() {
     var panel = document.getElementById('helpPanel');
-    if (panel) { var _hp = panel.querySelector('.config-help-panel'); if (_hp) _hp.classList.add('help-hidden'); };
+    // helpPanel reste visible
 }
