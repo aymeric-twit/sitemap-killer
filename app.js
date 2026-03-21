@@ -199,7 +199,7 @@ function lancerExtraction() {
     elBtnExtraire.disabled = true;
     elBtnArreter.classList.remove('d-none');
     var helpPanel = document.getElementById('helpPanel');
-    if (helpPanel) { var _hp = helpPanel.querySelector('.config-help-panel'); if (_hp) _hp.style.display = 'none'; };
+    if (helpPanel) { var _hp = helpPanel.querySelector('.config-help-panel'); if (_hp) _hp.classList.add('help-hidden'); };
     elSectionJournal.classList.remove('d-none');
     elCorpsJournal.style.display = '';
     elBtnToggleJournal.querySelector('i').className = 'bi bi-chevron-down';
