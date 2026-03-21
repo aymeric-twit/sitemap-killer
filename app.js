@@ -284,6 +284,11 @@ function demarrerStream(id) {
         }
 
         finirExtraction();
+
+        // Auto-collapse config
+        var configBody = document.getElementById('configBody');
+        if (configBody) { bootstrap.Collapse.getOrCreateInstance(configBody, {toggle:false}).hide(); }
+
         afficherStatus(
             t('status.succes', { count: resultats.length, duree: data.statistiques.duree }),
             'success'
