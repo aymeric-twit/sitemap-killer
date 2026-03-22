@@ -189,10 +189,18 @@
                 <div class="help-title mb-2" data-i18n="help.titre_audit">
                     <i class="bi bi-lightbulb me-1"></i> Audit automatique
                 </div>
-                <ul class="mb-0">
+                <ul>
                     <li data-i18n="help.item_doublons">Détection des URLs en double entre sitemaps</li>
                     <li data-i18n="help.item_sans_hreflang">URLs sans hreflang (si extraction hreflang activée)</li>
                     <li data-i18n="help.item_reciprocite">Hreflang sans réciprocité avec diagnostic détaillé</li>
+                </ul>
+                <hr>
+                <div class="help-title mb-2" data-i18n="help.titre_credits">
+                    <i class="bi bi-lightning-charge me-1"></i> Crédits
+                </div>
+                <ul class="mb-0">
+                    <li data-i18n="help.item_credits_cout">1 extraction = <strong>1 crédit</strong> (single ou multi)</li>
+                    <li data-i18n="help.item_credits_multi">Le mode multi-sitemaps ne consomme qu'un seul crédit</li>
                 </ul>
             </div>
         </div>
