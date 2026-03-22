@@ -18,6 +18,7 @@ $urlsValides = [];
 if ($urlsBrutes !== '') {
     // Mode multi
     $lignes = array_filter(array_map('trim', explode("\n", $urlsBrutes)));
+    $lignes = array_slice($lignes, 0, 100); // Limite à 100 sitemaps max
     foreach ($lignes as $ligne) {
         if (!preg_match('#^https?://#i', $ligne)) {
             $ligne = 'https://' . $ligne;

@@ -408,25 +408,51 @@ class ExtractionSitemap
         $codeHttp = 0;
 
         for ($tentative = 1; $tentative <= $this->tentatives; $tentative++) {
-            $this->compteurRequetes++;
+            // Suivre les redirections manuellement (anti-SSRF sur chaque hop)
+            $urlCourante = $url;
+            $contenu = false;
 
-            $contexte = stream_context_create([
-                'http' => [
-                    'method'          => 'GET',
-                    'header'          => "User-Agent: {$this->userAgent}\r\nAccept-Encoding: gzip\r\n",
-                    'timeout'         => $this->timeout,
-                    'follow_location' => true,
-                    'max_redirects'   => 5,
-                    'ignore_errors'   => true,
-                ],
-                'ssl' => [
-                    'verify_peer'      => true,
-                    'verify_peer_name' => true,
-                ],
-            ]);
+            for ($redir = 0; $redir <= 5; $redir++) {
+                $this->compteurRequetes++;
 
-            $contenu = @file_get_contents($url, false, $contexte);
-            $codeHttp = $this->extraireCodeHttp($http_response_header ?? []);
+                $contexte = stream_context_create([
+                    'http' => [
+                        'method'          => 'GET',
+                        'header'          => "User-Agent: {$this->userAgent}\r\nAccept-Encoding: gzip\r\n",
+                        'timeout'         => $this->timeout,
+                        'follow_location' => false,
+                        'ignore_errors'   => true,
+                    ],
+                    'ssl' => [
+                        'verify_peer'      => true,
+                        'verify_peer_name' => true,
+                    ],
+                ]);
+
+                $contenu = @file_get_contents($urlCourante, false, $contexte);
+                $codeHttp = $this->extraireCodeHttp($http_response_header ?? []);
+
+                if ($codeHttp >= 300 && $codeHttp < 400) {
+                    $location = $this->extraireHeader($http_response_header ?? [], 'Location');
+                    if ($location === '') {
+                        break;
+                    }
+                    // Résoudre les URLs relatives
+                    if (!preg_match('#^https?://#i', $location)) {
+                        $base = parse_url($urlCourante);
+                        $location = ($base['scheme'] ?? 'https') . '://' . ($base['host'] ?? '') . $location;
+                    }
+                    if (!self::estUrlPublique($location)) {
+                        $this->erreurs[] = "Redirection bloquée (SSRF) : $urlCourante → $location";
+                        $this->log("Redirection bloquée (SSRF) : $location");
+                        return null;
+                    }
+                    $urlCourante = $location;
+                    continue;
+                }
+
+                break; // Pas une redirection, sortir de la boucle redirect
+            }
 
             if ($contenu !== false && $codeHttp >= 200 && $codeHttp < 300) {
                 // Décompression Content-Encoding gzip
