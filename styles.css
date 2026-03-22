@@ -437,6 +437,15 @@ body {
     border-radius: 4px;
 }
 
+/* ─── Mode toggle ────────────────────────── */
+
+#modeToggle .btn-check:checked + .btn-outline-secondary,
+#modeToggle .btn-check:checked + .btn-outline-secondary:active {
+    background: var(--brand-dark) !important;
+    color: #fff !important;
+    border-color: var(--brand-dark) !important;
+}
+
 /* ─── Panneau d'aide ─────────────────────── */
 
 .config-help-panel {

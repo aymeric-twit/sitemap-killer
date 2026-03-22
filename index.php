@@ -42,13 +42,33 @@
                 <div class="collapse show" id="configBody">
                 <div class="card-body">
                     <form id="formExtraction">
-                <!-- URL -->
-                <div class="mb-3">
+                <!-- Toggle mode -->
+                <div class="btn-group mb-3" role="group" id="modeToggle">
+                    <input type="radio" class="btn-check" name="mode" id="modeSingle" value="single" checked>
+                    <label class="btn btn-outline-secondary btn-sm" for="modeSingle" data-i18n="form.mode_single">Sitemap unique</label>
+                    <input type="radio" class="btn-check" name="mode" id="modeBulk" value="bulk">
+                    <label class="btn btn-outline-secondary btn-sm" for="modeBulk" data-i18n="form.mode_bulk">Sitemaps multiples</label>
+                </div>
+
+                <!-- URL unique -->
+                <div class="mb-3" id="singleUrlSection">
                     <label for="url" class="form-label" data-i18n="form.label_url">URL du sitemap</label>
                     <input type="text" class="form-control" id="url" name="url"
                            data-i18n-placeholder="form.placeholder_url"
-                           placeholder="https://example.com/sitemap.xml" required>
+                           placeholder="https://example.com/sitemap.xml">
                     <div class="form-text" data-i18n="form.aide_url">URL directe du sitemap ou du site (avec l'option robots.txt)</div>
+                </div>
+
+                <!-- Multi-URL -->
+                <div class="mb-3" id="bulkUrlSection" style="display: none;">
+                    <label for="urlsBulk" class="form-label">
+                        <span data-i18n="form.label_urls_bulk">URLs des sitemaps</span>
+                        <span class="text-muted small" data-i18n="form.label_urls_bulk_hint">(une par ligne)</span>
+                    </label>
+                    <textarea class="form-control font-monospace" id="urlsBulk" rows="6"
+                              data-i18n-placeholder="form.placeholder_urls_bulk"
+                              placeholder="https://example.com/sitemap-blog.xml&#10;https://example.com/sitemap-products.xml&#10;https://other-site.com/sitemap.xml"></textarea>
+                    <div class="small text-muted mt-1" id="bulkUrlCount"></div>
                 </div>
 
                 <!-- Options principales -->

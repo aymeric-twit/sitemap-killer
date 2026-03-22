@@ -133,6 +133,26 @@ class ExtractionSitemap
     }
 
     /**
+     * Extraire les URLs à partir de plusieurs sitemaps.
+     *
+     * @param string[] $urlsSitemap
+     * @return array<int, array<string, mixed>>
+     */
+    public function extraireMulti(array $urlsSitemap): array
+    {
+        $this->reinitialiser();
+        $this->log("Démarrage multi-extraction : " . count($urlsSitemap) . " sitemap(s)");
+        foreach ($urlsSitemap as $url) {
+            $this->log("Sitemap : $url");
+            $this->traiterSitemap($url, 0);
+        }
+        $this->viderTampon();
+        $this->emettreFin();
+
+        return $this->urls;
+    }
+
+    /**
      * Détecter les sitemaps depuis robots.txt, puis les traiter.
      *
      * @return array<int, array<string, mixed>>

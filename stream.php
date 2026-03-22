@@ -71,7 +71,9 @@ $extracteur->setCallbackProgression(function (array $stats) use ($tempsDebut) {
 
 // ─── Extraction ─────────────────────────────
 
-if ($config['robots']) {
+if (!empty($config['urls'])) {
+    $extracteur->extraireMulti($config['urls']);
+} elseif ($config['robots']) {
     $extracteur->extraireDepuisRobots($config['url']);
 } else {
     $extracteur->extraire($config['url']);

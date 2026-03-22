@@ -9,30 +9,49 @@ error_reporting(0);
 
 // ─── Validation ─────────────────────────────
 
-$url = trim($_POST['url'] ?? '');
-if ($url === '') {
-    http_response_code(400);
-    echo json_encode(['erreur' => 'URL requise']);
-    exit;
-}
-
-// Ajouter https:// si absent
-if (!preg_match('#^https?://#i', $url)) {
-    $url = 'https://' . $url;
-}
-
-if (!filter_var($url, FILTER_VALIDATE_URL)) {
-    http_response_code(400);
-    echo json_encode(['erreur' => 'URL invalide']);
-    exit;
-}
-
-// Anti-SSRF : rejeter les URLs vers des hôtes privés/réservés
 require_once __DIR__ . '/src/ExtractionSitemap.php';
-if (!ExtractionSitemap::estUrlPublique($url)) {
-    http_response_code(400);
-    echo json_encode(['erreur' => 'URL non autorisée (adresse privée ou réservée)']);
-    exit;
+
+$urlsBrutes = trim($_POST['urls'] ?? '');
+$url = trim($_POST['url'] ?? '');
+$urlsValides = [];
+
+if ($urlsBrutes !== '') {
+    // Mode multi
+    $lignes = array_filter(array_map('trim', explode("\n", $urlsBrutes)));
+    foreach ($lignes as $ligne) {
+        if (!preg_match('#^https?://#i', $ligne)) {
+            $ligne = 'https://' . $ligne;
+        }
+        if (filter_var($ligne, FILTER_VALIDATE_URL) && ExtractionSitemap::estUrlPublique($ligne)) {
+            $urlsValides[] = $ligne;
+        }
+    }
+    if (empty($urlsValides)) {
+        http_response_code(400);
+        echo json_encode(['erreur' => 'Aucune URL valide']);
+        exit;
+    }
+    $url = $urlsValides[0];
+} else {
+    // Mode single
+    if ($url === '') {
+        http_response_code(400);
+        echo json_encode(['erreur' => 'URL requise']);
+        exit;
+    }
+    if (!preg_match('#^https?://#i', $url)) {
+        $url = 'https://' . $url;
+    }
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        http_response_code(400);
+        echo json_encode(['erreur' => 'URL invalide']);
+        exit;
+    }
+    if (!ExtractionSitemap::estUrlPublique($url)) {
+        http_response_code(400);
+        echo json_encode(['erreur' => 'URL non autorisée (adresse privée ou réservée)']);
+        exit;
+    }
 }
 
 // Valider le filtre regex
@@ -70,6 +89,7 @@ if (!file_exists($htaccess)) {
 
 $config = [
     'url'            => $url,
+    'urls'           => $urlsValides,
     'robots'         => filter_var($_POST['robots'] ?? false, FILTER_VALIDATE_BOOLEAN),
     'hreflang'       => filter_var($_POST['hreflang'] ?? false, FILTER_VALIDATE_BOOLEAN),
     'formatHreflang' => in_array($_POST['formatHreflang'] ?? 'flat', ['flat', 'pivot'], true)
