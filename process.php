@@ -66,6 +66,16 @@ if ($filtre !== '') {
     }
 }
 
+// ─── Vérification crédits (sans déduire) ────
+
+if (class_exists('\\Platform\\Module\\Quota')) {
+    if (!\Platform\Module\Quota::creditsDisponibles('sitemap-killer')) {
+        http_response_code(429);
+        echo json_encode(['erreur' => 'Crédits épuisés']);
+        exit;
+    }
+}
+
 // ─── Création du job ────────────────────────
 
 $jobId = bin2hex(random_bytes(12));
@@ -114,11 +124,6 @@ file_put_contents(
     $dossierJob . '/config.json',
     json_encode($config, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
 );
-
-// Décompter les crédits
-if (class_exists(\Platform\Module\Quota::class)) {
-    \Platform\Module\Quota::track('sitemap-killer');
-}
 
 echo json_encode(['jobId' => $jobId], JSON_UNESCAPED_UNICODE);
 

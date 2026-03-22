@@ -89,6 +89,16 @@ $extracteur->exporterCsv($fichierCsv, !$config['masquerEntete']);
 $fichierErreurs = $dossierJob . '/erreurs.txt';
 $extracteur->exporterErreurs($fichierErreurs);
 
+// ─── Décompter le crédit après extraction réussie ─
+
+if (class_exists('\\Platform\\Module\\Quota')) {
+    try {
+        \Platform\Module\Quota::track('sitemap-killer');
+    } catch (\Throwable $e) {
+        // Ne pas bloquer si le tracking échoue
+    }
+}
+
 // ─── Événement de fin ───────────────────────
 
 $stats = $extracteur->getStatistiques();
