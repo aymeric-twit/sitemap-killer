@@ -302,6 +302,7 @@ function demarrerStream(id) {
             elSectionResultats.classList.remove('d-none');
             genererRapportAudit();
         }
+        elSectionKpi.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     evtSource.addEventListener('error', function (e) {
@@ -342,6 +343,7 @@ function arreterExtraction() {
         elSectionResultats.classList.remove('d-none');
         genererRapportAudit();
     }
+    elSectionKpi.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function finirExtraction() {
