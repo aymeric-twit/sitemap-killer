@@ -273,7 +273,8 @@ function lancerExtraction() {
             }
             if (!res.ok) {
                 return res.json().then(function (data) {
-                    throw new Error(data.erreur || t('error.http', { code: res.status }));
+                    var errMsg = langueActuelle === 'en' ? (data.erreur_en || data.erreur_fr || data.erreur) : (data.erreur_fr || data.erreur);
+                    throw new Error(errMsg || t('error.http', { code: res.status }));
                 });
             }
             return res.json();
@@ -295,7 +296,8 @@ function demarrerStream(id) {
 
     evtSource.addEventListener('log', function (e) {
         var data = JSON.parse(e.data);
-        ajouterLog(data.message, data.horodatage);
+        var msg = langueActuelle === 'en' ? (data.message_en || data.message_fr || data.message) : (data.message_fr || data.message);
+        ajouterLog(msg, data.horodatage);
     });
 
     evtSource.addEventListener('urls', function (e) {
@@ -344,7 +346,8 @@ function demarrerStream(id) {
         // Vérifier s'il y avait un événement d'erreur custom
         if (e.data) {
             var data = JSON.parse(e.data);
-            afficherStatus(data.message || t('error.serveur'), 'error');
+            var errMsg = langueActuelle === 'en' ? (data.message_en || data.message_fr || data.message) : (data.message_fr || data.message);
+            afficherStatus(errMsg || t('error.serveur'), 'error');
         }
 
         if (evtSource) {

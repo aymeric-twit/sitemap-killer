@@ -35,7 +35,7 @@ class ExtractionSitemap
 
     // ─── Callbacks SSE ───────────────────────────
 
-    /** @var ?\Closure(string): void */
+    /** @var ?\Closure(string|array): void */
     private ?\Closure $callbackLog = null;
     /** @var ?\Closure(array): void */
     private ?\Closure $callbackUrls = null;
@@ -124,7 +124,7 @@ class ExtractionSitemap
     public function extraire(string $urlSitemap): array
     {
         $this->reinitialiser();
-        $this->log("Démarrage de l'extraction : $urlSitemap");
+        $this->log("Démarrage de l'extraction : $urlSitemap", "Starting extraction: $urlSitemap");
         $this->traiterSitemap($urlSitemap, 0);
         $this->viderTampon();
         $this->emettreFin();
@@ -141,9 +141,9 @@ class ExtractionSitemap
     public function extraireMulti(array $urlsSitemap): array
     {
         $this->reinitialiser();
-        $this->log("Démarrage multi-extraction : " . count($urlsSitemap) . " sitemap(s)");
+        $this->log("Démarrage multi-extraction : " . count($urlsSitemap) . " sitemap(s)", "Starting multi-extraction: " . count($urlsSitemap) . " sitemap(s)");
         foreach ($urlsSitemap as $url) {
-            $this->log("Sitemap : $url");
+            $this->log("Sitemap : $url", "Sitemap: $url");
             $this->traiterSitemap($url, 0);
         }
         $this->viderTampon();
@@ -161,12 +161,12 @@ class ExtractionSitemap
     {
         $this->reinitialiser();
         $urlRobots = rtrim($urlBase, '/') . '/robots.txt';
-        $this->log("Lecture de robots.txt : $urlRobots");
+        $this->log("Lecture de robots.txt : $urlRobots", "Reading robots.txt: $urlRobots");
 
         $contenu = $this->telechargerUrl($urlRobots);
         if ($contenu === null) {
             $this->erreurs[] = "Impossible de lire robots.txt : $urlRobots";
-            $this->log("Échec lecture robots.txt — tentative /sitemap.xml par défaut");
+            $this->log("Échec lecture robots.txt — tentative /sitemap.xml par défaut", "Failed to read robots.txt — trying /sitemap.xml as default");
             $this->traiterSitemap(rtrim($urlBase, '/') . '/sitemap.xml', 0);
         } else {
             $urlsSitemap = [];
@@ -177,13 +177,13 @@ class ExtractionSitemap
             }
 
             if (empty($urlsSitemap)) {
-                $this->log("Aucun sitemap dans robots.txt — tentative /sitemap.xml");
+                $this->log("Aucun sitemap dans robots.txt — tentative /sitemap.xml", "No sitemap in robots.txt — trying /sitemap.xml");
                 $urlsSitemap[] = rtrim($urlBase, '/') . '/sitemap.xml';
             }
 
-            $this->log(count($urlsSitemap) . " sitemap(s) détecté(s) dans robots.txt");
+            $this->log(count($urlsSitemap) . " sitemap(s) détecté(s) dans robots.txt", count($urlsSitemap) . " sitemap(s) found in robots.txt");
             foreach ($urlsSitemap as $url) {
-                $this->log("Sitemap : $url");
+                $this->log("Sitemap : $url", "Sitemap: $url");
                 $this->traiterSitemap($url, 0);
             }
         }
@@ -200,7 +200,7 @@ class ExtractionSitemap
     {
         if ($profondeur > $this->profondeurMax) {
             $this->erreurs[] = "Profondeur max ({$this->profondeurMax}) atteinte : $url";
-            $this->log("Profondeur max atteinte — ignoré : $url");
+            $this->log("Profondeur max atteinte — ignoré : $url", "Max depth reached — skipped: $url");
             return;
         }
 
@@ -208,7 +208,7 @@ class ExtractionSitemap
             return;
         }
 
-        $this->log("Traitement sitemap (profondeur $profondeur) : $url");
+        $this->log("Traitement sitemap (profondeur $profondeur) : $url", "Processing sitemap (depth $profondeur): $url");
 
         $contenu = $this->telechargerUrl($url);
         if ($contenu === null) {
@@ -221,7 +221,7 @@ class ExtractionSitemap
             $decode = @gzdecode($contenu);
             if ($decode === false) {
                 $this->erreurs[] = "Décompression gzip échouée : $url";
-                $this->log("Décompression gzip échouée : $url");
+                $this->log("Décompression gzip échouée : $url", "Gzip decompression failed: $url");
                 return;
             }
             $contenu = $decode;
@@ -234,7 +234,7 @@ class ExtractionSitemap
             $errs = array_map(fn($e) => trim($e->message), libxml_get_errors());
             libxml_clear_errors();
             $this->erreurs[] = "XML invalide ($url) : " . implode('; ', $errs);
-            $this->log("XML invalide : $url");
+            $this->log("XML invalide : $url", "Invalid XML: $url");
             return;
         }
 
@@ -249,7 +249,7 @@ class ExtractionSitemap
             $this->traiterUrlset($xml, $namespaces);
         } else {
             $this->erreurs[] = "Type de sitemap inconnu ($nomRacine) : $url";
-            $this->log("Type inconnu : $nomRacine");
+            $this->log("Type inconnu : $nomRacine", "Unknown type: $nomRacine");
         }
 
         $this->emettreProgression();
@@ -277,7 +277,7 @@ class ExtractionSitemap
             }
         }
 
-        $this->log("Sitemap index : $compteur sous-sitemap(s)");
+        $this->log("Sitemap index : $compteur sous-sitemap(s)", "Sitemap index: $compteur sub-sitemap(s)");
     }
 
     /**
@@ -344,7 +344,7 @@ class ExtractionSitemap
             }
         }
 
-        $this->log("Urlset : $compteur URLs (total : " . count($this->urls) . ")");
+        $this->log("Urlset : $compteur URLs (total : " . count($this->urls) . ")", "Urlset: $compteur URLs (total: " . count($this->urls) . ")");
     }
 
     // ─── Réseau ─────────────────────────────────
@@ -385,7 +385,7 @@ class ExtractionSitemap
     {
         if (!self::estUrlPublique($url)) {
             $this->erreurs[] = "URL bloquée (adresse privée/réservée) : $url";
-            $this->log("URL bloquée (SSRF) : $url");
+            $this->log("URL bloquée (SSRF) : $url", "URL blocked (SSRF): $url");
             return null;
         }
 
@@ -400,7 +400,7 @@ class ExtractionSitemap
             }
 
             $this->erreurs[] = "Échec téléchargement : $url (HTTP {$reponse->statusCode})";
-            $this->log("Échec : $url (HTTP {$reponse->statusCode})");
+            $this->log("Échec : $url (HTTP {$reponse->statusCode})", "Failed: $url (HTTP {$reponse->statusCode})");
             return null;
         }
 
@@ -444,7 +444,7 @@ class ExtractionSitemap
                     }
                     if (!self::estUrlPublique($location)) {
                         $this->erreurs[] = "Redirection bloquée (SSRF) : $urlCourante → $location";
-                        $this->log("Redirection bloquée (SSRF) : $location");
+                        $this->log("Redirection bloquée (SSRF) : $location", "Redirect blocked (SSRF): $location");
                         return null;
                     }
                     $urlCourante = $location;
@@ -468,13 +468,13 @@ class ExtractionSitemap
 
             if ($tentative < $this->tentatives) {
                 $attente = $tentative * 2;
-                $this->log("HTTP $codeHttp — retry $tentative/{$this->tentatives} dans {$attente}s");
+                $this->log("HTTP $codeHttp — retry $tentative/{$this->tentatives} dans {$attente}s", "HTTP $codeHttp — retry $tentative/{$this->tentatives} in {$attente}s");
                 sleep($attente);
             }
         }
 
         $this->erreurs[] = "Échec après {$this->tentatives} tentatives : $url (HTTP $codeHttp)";
-        $this->log("Échec définitif : $url (HTTP $codeHttp)");
+        $this->log("Échec définitif : $url (HTTP $codeHttp)", "Final failure: $url (HTTP $codeHttp)");
 
         return null;
     }
@@ -705,13 +705,17 @@ class ExtractionSitemap
         $sitemaps = $this->compteurSitemaps;
         $requetes = $this->compteurRequetes;
         $erreurs = count($this->erreurs);
-        $this->log("Terminé — $total URLs, $sitemaps sitemaps, $requetes requêtes, $erreurs erreur(s)");
+        $this->log("Terminé — $total URLs, $sitemaps sitemaps, $requetes requêtes, $erreurs erreur(s)", "Done — $total URLs, $sitemaps sitemaps, $requetes requests, $erreurs error(s)");
     }
 
-    private function log(string $message): void
+    private function log(string $message, ?string $messageEn = null): void
     {
         if ($this->callbackLog !== null) {
-            ($this->callbackLog)($message);
+            if ($messageEn !== null) {
+                ($this->callbackLog)(['fr' => $message, 'en' => $messageEn]);
+            } else {
+                ($this->callbackLog)($message);
+            }
         }
     }
 }

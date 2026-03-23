@@ -29,7 +29,7 @@ if ($urlsBrutes !== '') {
     }
     if (empty($urlsValides)) {
         http_response_code(400);
-        echo json_encode(['erreur' => 'Aucune URL valide']);
+        echo json_encode(['erreur' => 'Aucune URL valide', 'erreur_fr' => 'Aucune URL valide', 'erreur_en' => 'No valid URL']);
         exit;
     }
     $url = $urlsValides[0];
@@ -37,7 +37,7 @@ if ($urlsBrutes !== '') {
     // Mode single
     if ($url === '') {
         http_response_code(400);
-        echo json_encode(['erreur' => 'URL requise']);
+        echo json_encode(['erreur' => 'URL requise', 'erreur_fr' => 'URL requise', 'erreur_en' => 'URL required']);
         exit;
     }
     if (!preg_match('#^https?://#i', $url)) {
@@ -45,12 +45,12 @@ if ($urlsBrutes !== '') {
     }
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
         http_response_code(400);
-        echo json_encode(['erreur' => 'URL invalide']);
+        echo json_encode(['erreur' => 'URL invalide', 'erreur_fr' => 'URL invalide', 'erreur_en' => 'Invalid URL']);
         exit;
     }
     if (!ExtractionSitemap::estUrlPublique($url)) {
         http_response_code(400);
-        echo json_encode(['erreur' => 'URL non autorisée (adresse privée ou réservée)']);
+        echo json_encode(['erreur' => 'URL non autorisée (adresse privée ou réservée)', 'erreur_fr' => 'URL non autorisée (adresse privée ou réservée)', 'erreur_en' => 'URL not allowed (private or reserved address)']);
         exit;
     }
 }
@@ -61,7 +61,7 @@ if ($filtre !== '') {
     $regex = '/' . str_replace('/', '\/', $filtre) . '/i';
     if (@preg_match($regex, '') === false) {
         http_response_code(400);
-        echo json_encode(['erreur' => 'Expression régulière invalide']);
+        echo json_encode(['erreur' => 'Expression régulière invalide', 'erreur_fr' => 'Expression régulière invalide', 'erreur_en' => 'Invalid regular expression']);
         exit;
     }
 }
@@ -71,7 +71,7 @@ if ($filtre !== '') {
 if (class_exists('\\Platform\\Module\\Quota')) {
     if (!\Platform\Module\Quota::creditsDisponibles('sitemap-killer')) {
         http_response_code(429);
-        echo json_encode(['erreur' => 'Crédits épuisés']);
+        echo json_encode(['erreur' => 'Crédits épuisés', 'erreur_fr' => 'Crédits épuisés', 'erreur_en' => 'Credits exhausted']);
         exit;
     }
 }

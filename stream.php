@@ -20,7 +20,7 @@ ini_set('memory_limit', '512M');
 $jobId = $_GET['job'] ?? '';
 
 if (!preg_match('/^[a-f0-9]{24}$/', $jobId)) {
-    envoyerEvenement('error', ['message' => 'Job ID invalide']);
+    envoyerEvenement('error', ['message' => 'Job ID invalide', 'message_fr' => 'Job ID invalide', 'message_en' => 'Invalid job ID']);
     exit;
 }
 
@@ -28,7 +28,7 @@ $dossierJob = __DIR__ . '/data/jobs/' . $jobId;
 $fichierConfig = $dossierJob . '/config.json';
 
 if (!file_exists($fichierConfig)) {
-    envoyerEvenement('error', ['message' => 'Job introuvable']);
+    envoyerEvenement('error', ['message' => 'Job introuvable', 'message_fr' => 'Job introuvable', 'message_en' => 'Job not found']);
     exit;
 }
 
@@ -53,11 +53,22 @@ if ($config['filtre'] !== '') {
 
 // ─── Callbacks SSE ──────────────────────────
 
-$extracteur->setCallbackLog(function (string $message) {
-    envoyerEvenement('log', [
-        'message'     => $message,
-        'horodatage'  => date('H:i:s'),
-    ]);
+$extracteur->setCallbackLog(function (string|array $message) {
+    if (is_array($message)) {
+        envoyerEvenement('log', [
+            'message'     => $message['fr'],
+            'message_fr'  => $message['fr'],
+            'message_en'  => $message['en'],
+            'horodatage'  => date('H:i:s'),
+        ]);
+    } else {
+        envoyerEvenement('log', [
+            'message'     => $message,
+            'message_fr'  => $message,
+            'message_en'  => $message,
+            'horodatage'  => date('H:i:s'),
+        ]);
+    }
 });
 
 $extracteur->setCallbackUrls(function (array $lot) {
