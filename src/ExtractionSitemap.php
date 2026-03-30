@@ -392,7 +392,7 @@ class ExtractionSitemap
         // Mode plateforme : client HTTP centralise
         if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\WebClient')) {
             $this->compteurRequetes++;
-            $webClient = new \Platform\Http\WebClient('sitemap-killer');
+            $webClient = \Platform\Http\WebClient::pourModule('sitemap-killer');
             $reponse = $webClient->fetchFichier($url);
 
             if ($reponse->estSucces()) {
