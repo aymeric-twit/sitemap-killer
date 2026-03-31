@@ -52,8 +52,9 @@ var TRANSLATIONS = {
         'help.item_sans_hreflang': 'URLs sans hreflang (si extraction hreflang activée)',
         'help.item_reciprocite': 'Hreflang sans réciprocité avec diagnostic détaillé',
         'help.titre_credits': '<i class="bi bi-lightning-charge me-1"></i> Crédits',
-        'help.item_credits_cout': '1 sitemap = <strong>1 crédit</strong> (décompté après parsing réussi)',
-        'help.item_credits_multi': 'Seuls les sitemaps du formulaire sont comptés, pas les sous-sitemaps récursifs',
+        'help.item_credits_cout': '1 sitemap soumis = <strong>1 crédit</strong> (décompté après parsing réussi)',
+        'help.item_credits_robots': 'Mode robots.txt = <strong>1 crédit</strong> (quel que soit le nombre de sitemaps découverts)',
+        'help.item_credits_multi': 'Les sous-sitemaps récursifs (index) ne sont pas décomptés',
 
         // Journal
         'journal.titre': '<i class="bi bi-terminal"></i> Journal d\'extraction',
@@ -171,8 +172,9 @@ var TRANSLATIONS = {
         'help.item_sans_hreflang': 'URLs without hreflang (if hreflang extraction enabled)',
         'help.item_reciprocite': 'Hreflang without reciprocity with detailed diagnosis',
         'help.titre_credits': '<i class="bi bi-lightning-charge me-1"></i> Credits',
-        'help.item_credits_cout': '1 sitemap = <strong>1 credit</strong> (charged after successful parsing)',
-        'help.item_credits_multi': 'Only form-submitted sitemaps are counted, not recursive sub-sitemaps',
+        'help.item_credits_cout': '1 submitted sitemap = <strong>1 credit</strong> (charged after successful parsing)',
+        'help.item_credits_robots': 'Robots.txt mode = <strong>1 credit</strong> (regardless of sitemaps discovered)',
+        'help.item_credits_multi': 'Recursive sub-sitemaps (indexes) are not charged',
 
         // Log
         'journal.titre': '<i class="bi bi-terminal"></i> Extraction log',

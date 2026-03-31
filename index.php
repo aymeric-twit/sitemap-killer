@@ -199,8 +199,9 @@
                     <i class="bi bi-lightning-charge me-1"></i> Crédits
                 </div>
                 <ul class="mb-0">
-                    <li data-i18n="help.item_credits_cout">1 sitemap = <strong>1 crédit</strong> (décompté après parsing réussi)</li>
-                    <li data-i18n="help.item_credits_multi">Seuls les sitemaps du formulaire sont comptés, pas les sous-sitemaps récursifs</li>
+                    <li data-i18n="help.item_credits_cout">1 sitemap soumis = <strong>1 crédit</strong> (décompté après parsing réussi)</li>
+                    <li data-i18n="help.item_credits_robots">Mode robots.txt = <strong>1 crédit</strong> (quel que soit le nombre de sitemaps découverts)</li>
+                    <li data-i18n="help.item_credits_multi">Les sous-sitemaps récursifs (index) ne sont pas décomptés</li>
                 </ul>
             </div>
         </div>
