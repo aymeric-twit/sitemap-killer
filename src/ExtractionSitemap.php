@@ -401,7 +401,15 @@ class ExtractionSitemap
             $reponse = $webClient->fetchFichier($url);
 
             if ($reponse->estSucces()) {
-                return $reponse->body;
+                $body = $reponse->body;
+                // Décompression gzip si le body commence par la signature magique
+                if (strlen($body) >= 2 && $body[0] === "\x1f" && $body[1] === "\x8b") {
+                    $decode = @gzdecode($body);
+                    if ($decode !== false) {
+                        $body = $decode;
+                    }
+                }
+                return $body;
             }
 
             $this->erreurs[] = "Échec téléchargement : $url (HTTP {$reponse->statusCode})";
@@ -460,9 +468,11 @@ class ExtractionSitemap
             }
 
             if ($contenu !== false && $codeHttp >= 200 && $codeHttp < 300) {
-                // Décompression Content-Encoding gzip
+                // Décompression Content-Encoding gzip (header ou détection magique \x1f\x8b)
                 $encoding = $this->extraireHeader($http_response_header ?? [], 'Content-Encoding');
-                if (stripos($encoding, 'gzip') !== false) {
+                $estGzip = stripos($encoding, 'gzip') !== false
+                    || (strlen($contenu) >= 2 && $contenu[0] === "\x1f" && $contenu[1] === "\x8b");
+                if ($estGzip) {
                     $decode = @gzdecode($contenu);
                     if ($decode !== false) {
                         $contenu = $decode;
