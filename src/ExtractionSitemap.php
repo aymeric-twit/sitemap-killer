@@ -215,9 +215,11 @@ class ExtractionSitemap
             return;
         }
 
-        // Décompression gzip si fichier .gz
+        // Décompression gzip : par extension .gz OU par détection magic bytes \x1f\x8b
         $chemin = strtolower(parse_url($url, PHP_URL_PATH) ?? '');
-        if (str_ends_with($chemin, '.gz')) {
+        $estGzip = str_ends_with($chemin, '.gz')
+            || (strlen($contenu) >= 2 && $contenu[0] === "\x1f" && $contenu[1] === "\x8b");
+        if ($estGzip) {
             $decode = @gzdecode($contenu);
             if ($decode === false) {
                 $this->erreurs[] = "Décompression gzip échouée : $url";
