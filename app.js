@@ -703,14 +703,38 @@ function calcPages(current, total, maxVisible) {
 
 // ─── Téléchargement ─────────────────────────
 
-function telechargerCsv() {
+function telechargerFichier(type) {
     if (!jobId) return;
-    window.open(baseUrl + '/download.php?job=' + encodeURIComponent(jobId) + '&type=csv', '_blank');
+    fetch(baseUrl + '/download.php?job=' + encodeURIComponent(jobId) + '&type=' + type, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob();
+    })
+    .then(function (blob) {
+        var ext = type === 'erreurs' ? '.txt' : '.csv';
+        var nom = 'sitemap-' + type + '-' + jobId.substring(0, 8) + ext;
+        var url = URL.createObjectURL(blob);
+        var lien = document.createElement('a');
+        lien.href = url;
+        lien.download = nom;
+        document.body.appendChild(lien);
+        lien.click();
+        document.body.removeChild(lien);
+        URL.revokeObjectURL(url);
+    })
+    .catch(function (err) {
+        afficherStatus(err.message, 'error');
+    });
+}
+
+function telechargerCsv() {
+    telechargerFichier('csv');
 }
 
 function telechargerErreurs() {
-    if (!jobId) return;
-    window.open(baseUrl + '/download.php?job=' + encodeURIComponent(jobId) + '&type=erreurs', '_blank');
+    telechargerFichier('erreurs');
 }
 
 function exporterCsvFiltre() {
