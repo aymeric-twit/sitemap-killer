@@ -51,6 +51,9 @@ var TRANSLATIONS = {
         'help.item_doublons': 'Détection des URLs en double entre sitemaps',
         'help.item_sans_hreflang': 'URLs sans hreflang (si extraction hreflang activée)',
         'help.item_reciprocite': 'Hreflang sans réciprocité avec diagnostic détaillé',
+        'help.titre_credits': '<i class="bi bi-lightning-charge me-1"></i> Crédits',
+        'help.item_credits_cout': '1 sitemap = <strong>0.5 crédit</strong> (décompté après parsing réussi)',
+        'help.item_credits_multi': 'Seuls les sitemaps du formulaire sont comptés, pas les sous-sitemaps récursifs',
 
         // Journal
         'journal.titre': '<i class="bi bi-terminal"></i> Journal d\'extraction',
@@ -167,6 +170,9 @@ var TRANSLATIONS = {
         'help.item_doublons': 'Detection of duplicate URLs across sitemaps',
         'help.item_sans_hreflang': 'URLs without hreflang (if hreflang extraction enabled)',
         'help.item_reciprocite': 'Hreflang without reciprocity with detailed diagnosis',
+        'help.titre_credits': '<i class="bi bi-lightning-charge me-1"></i> Credits',
+        'help.item_credits_cout': '1 sitemap = <strong>0.5 credit</strong> (charged after successful parsing)',
+        'help.item_credits_multi': 'Only form-submitted sitemaps are counted, not recursive sub-sitemaps',
 
         // Log
         'journal.titre': '<i class="bi bi-terminal"></i> Extraction log',

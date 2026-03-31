@@ -639,6 +639,46 @@ class ExtractionSitemap
         return true;
     }
 
+    // ─── API publique pour boucle externe ──────
+
+    /**
+     * Réinitialiser l'état (public pour boucle externe dans stream.php).
+     */
+    public function reinitialiser(): void
+    {
+        $this->urls = [];
+        $this->erreurs = [];
+        $this->languesHreflang = [];
+        $this->compteurSitemaps = 0;
+        $this->compteurRequetes = 0;
+        $this->sitemapEnCours = '';
+        $this->tamponLot = [];
+    }
+
+    /**
+     * Traiter un sitemap de premier niveau (public pour boucle externe).
+     */
+    public function traiterSitemapPublic(string $url): void
+    {
+        $this->traiterSitemap($url, 0);
+        $this->emettreProgression();
+    }
+
+    /**
+     * Finaliser l'extraction (vider le tampon + émettre fin).
+     */
+    public function finaliser(): void
+    {
+        $this->viderTampon();
+        $this->emettreFin();
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function getUrls(): array
+    {
+        return $this->urls;
+    }
+
     // ─── Getters ────────────────────────────────
 
     /** @return string[] */
@@ -669,16 +709,7 @@ class ExtractionSitemap
 
     // ─── Helpers internes ───────────────────────
 
-    private function reinitialiser(): void
-    {
-        $this->urls = [];
-        $this->erreurs = [];
-        $this->languesHreflang = [];
-        $this->compteurSitemaps = 0;
-        $this->compteurRequetes = 0;
-        $this->sitemapEnCours = '';
-        $this->tamponLot = [];
-    }
+    // reinitialiser() est définie en public plus haut
 
     private function viderTampon(): void
     {

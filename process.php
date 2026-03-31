@@ -67,11 +67,20 @@ if ($filtre !== '') {
 }
 
 // ─── Vérification crédits (sans déduire) ────
+// 1 sitemap = 1 unité, 2 unités = 1 crédit (0.5 crédit/sitemap)
+// Le décompte réel se fait dans stream.php après chaque sitemap parsé
+
+$nbSitemapsSoumis = !empty($urlsValides) ? count($urlsValides) : 1;
 
 if (class_exists('\\Platform\\Module\\Quota')) {
-    if (!\Platform\Module\Quota::creditsDisponibles('sitemap-killer')) {
+    $restant = \Platform\Module\Quota::restant('sitemap-killer');
+    if ($restant !== null && $restant < $nbSitemapsSoumis) {
         http_response_code(429);
-        echo json_encode(['erreur' => 'Crédits épuisés', 'erreur_fr' => 'Crédits épuisés', 'erreur_en' => 'Credits exhausted']);
+        echo json_encode([
+            'erreur' => 'Crédits insuffisants',
+            'erreur_fr' => "Crédits insuffisants : $nbSitemapsSoumis sitemaps demandés, $restant restants",
+            'erreur_en' => "Insufficient credits: $nbSitemapsSoumis sitemaps requested, $restant remaining",
+        ]);
         exit;
     }
 }
@@ -101,6 +110,7 @@ if (!file_exists($htaccess)) {
 $config = [
     'url'            => $url,
     'urls'           => $urlsValides,
+    'nbSitemaps'     => $nbSitemapsSoumis,
     'robots'         => filter_var($_POST['robots'] ?? false, FILTER_VALIDATE_BOOLEAN),
     'hreflang'       => filter_var($_POST['hreflang'] ?? false, FILTER_VALIDATE_BOOLEAN),
     'formatHreflang' => in_array($_POST['formatHreflang'] ?? 'flat', ['flat', 'pivot'], true)

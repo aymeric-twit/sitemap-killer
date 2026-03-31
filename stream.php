@@ -81,13 +81,33 @@ $extracteur->setCallbackProgression(function (array $stats) use ($tempsDebut) {
 });
 
 // ─── Extraction ─────────────────────────────
+// Décompte des crédits : 1 unité par sitemap top-level parsé avec succès
+
+$trackerQuota = function () {
+    if (class_exists('\\Platform\\Module\\Quota')) {
+        try { \Platform\Module\Quota::track('sitemap-killer', 1); } catch (\Throwable $e) {}
+    }
+};
 
 if (!empty($config['urls'])) {
-    $extracteur->extraireMulti($config['urls']);
+    // Mode multi : boucle manuelle pour tracker chaque sitemap
+    $extracteur->reinitialiser();
+    foreach ($config['urls'] as $urlSitemap) {
+        $statsBefore = count($extracteur->getUrls());
+        $extracteur->traiterSitemapPublic($urlSitemap);
+        $statsAfter = count($extracteur->getUrls());
+        // Décompter seulement si le sitemap a produit des URLs
+        if ($statsAfter > $statsBefore) {
+            $trackerQuota();
+        }
+    }
+    $extracteur->finaliser();
 } elseif ($config['robots']) {
     $extracteur->extraireDepuisRobots($config['url']);
+    $trackerQuota();
 } else {
     $extracteur->extraire($config['url']);
+    $trackerQuota();
 }
 
 $duree = round(microtime(true) - $tempsDebut, 2);
@@ -99,16 +119,6 @@ $extracteur->exporterCsv($fichierCsv, !$config['masquerEntete']);
 
 $fichierErreurs = $dossierJob . '/erreurs.txt';
 $extracteur->exporterErreurs($fichierErreurs);
-
-// ─── Décompter le crédit après extraction réussie ─
-
-if (class_exists('\\Platform\\Module\\Quota')) {
-    try {
-        \Platform\Module\Quota::track('sitemap-killer');
-    } catch (\Throwable $e) {
-        // Ne pas bloquer si le tracking échoue
-    }
-}
 
 // ─── Événement de fin ───────────────────────
 

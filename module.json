@@ -7,8 +7,8 @@
     "illustration": "illustration.svg",
     "entry_point": "index.php",
     "sort_order": 45,
-    "quota_mode": "form_submit",
-    "default_quota": 100,
+    "quota_mode": "url",
+    "default_quota": 500,
     "display_mode": "embedded",
     "crawler_backend": "auto",
     "env_keys": [],
@@ -35,8 +35,8 @@
         }
     ],
     "credits_par_analyse": 1,
-    "units_per_credit": 1,
+    "units_per_credit": 2,
     "periode_quota": "mois",
-    "unites_par_credit": 1,
-    "unite_label": null
+    "unites_par_credit": 2,
+    "unite_label": "sitemaps"
 }
