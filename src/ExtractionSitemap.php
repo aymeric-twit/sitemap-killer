@@ -396,30 +396,9 @@ class ExtractionSitemap
             return null;
         }
 
-        // Mode plateforme : client HTTP centralise
-        if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\WebClient')) {
-            $this->compteurRequetes++;
-            $webClient = \Platform\Http\WebClient::pourModule('sitemap-killer');
-            $reponse = $webClient->fetchFichier($url);
-
-            if ($reponse->estSucces()) {
-                $body = $reponse->body;
-                // Décompression gzip si le body commence par la signature magique
-                if (strlen($body) >= 2 && $body[0] === "\x1f" && $body[1] === "\x8b") {
-                    $decode = @gzdecode($body);
-                    if ($decode !== false) {
-                        $body = $decode;
-                    }
-                }
-                return $body;
-            }
-
-            $this->erreurs[] = "Échec téléchargement : $url (HTTP {$reponse->statusCode})";
-            $this->log("Échec : $url (HTTP {$reponse->statusCode})", "Failed: $url (HTTP {$reponse->statusCode})");
-            return null;
-        }
-
-        // Mode standalone : stream_context natif avec retry
+        // Toujours utiliser stream_context natif (pas WebClient)
+        // Le WebClient envoie Accept-Encoding: br (Brotli) que cURL
+        // ne décompresse pas si libcurl n'a pas le support Brotli compilé
         $codeHttp = 0;
 
         for ($tentative = 1; $tentative <= $this->tentatives; $tentative++) {
