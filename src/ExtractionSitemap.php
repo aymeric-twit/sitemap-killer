@@ -431,7 +431,7 @@ class ExtractionSitemap
                 $contexte = stream_context_create([
                     'http' => [
                         'method'          => 'GET',
-                        'header'          => "User-Agent: {$this->userAgent}\r\nAccept-Encoding: gzip\r\n",
+                        'header'          => "User-Agent: {$this->userAgent}\r\n",
                         'timeout'         => $this->timeout,
                         'follow_location' => false,
                         'ignore_errors'   => true,
