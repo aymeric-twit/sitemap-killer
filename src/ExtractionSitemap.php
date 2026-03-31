@@ -233,8 +233,13 @@ class ExtractionSitemap
         if ($xml === false) {
             $errs = array_map(fn($e) => trim($e->message), libxml_get_errors());
             libxml_clear_errors();
-            $this->erreurs[] = "XML invalide ($url) : " . implode('; ', $errs);
-            $this->log("XML invalide : $url", "Invalid XML: $url");
+            $apercu = mb_substr(trim($contenu), 0, 120);
+            $taille = strlen($contenu);
+            $this->erreurs[] = "XML invalide ($url) : " . implode('; ', $errs) . " [{$taille} octets, début: {$apercu}]";
+            $this->log(
+                "XML invalide ({$taille} octets) : $url — " . mb_substr($apercu, 0, 80),
+                "Invalid XML ({$taille} bytes): $url — " . mb_substr($apercu, 0, 80)
+            );
             return;
         }
 
